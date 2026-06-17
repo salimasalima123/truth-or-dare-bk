@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Truth or Dare – Resolusi Konflik</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Poppins:wght@400;600;700&display=swap');
+
+  :root {
+    --biru: #2563EB;
+    --biru-muda: #DBEAFE;
+    --ungu: #7C3AED;
+    --ungu-muda: #EDE9FE;
+    --hijau: #059669;
+    --hijau-muda: #D1FAE5;
+    --kuning: #F59E0B;
+    --kuning-muda: #FEF3C7;
+    --merah: #DC2626;
+    --abu: #F1F5F9;
+    --teks: #1E293B;
+    --teks-abu: #64748B;
+    --putih: #FFFFFF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    text-align: center;
+    margin-bottom: 24px;
+    color: white;
+  }
+  .header .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.4);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+  .header h1 {
+    font-family: 'Nunito', sans-serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: white;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+  .header h1 span { color: #FCD34D; }
+  .header p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+  }
+
+  /* ===== CARD UTAMA ===== */
+  .card {
+    background: white;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+
+  /* ===== SCREEN ===== */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ===== SETUP SCREEN ===== */
+  .setup-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 28px 24px 24px;
+    text-align: center;
+    color: white;
+  }
+  .setup-header .icon { font-size: 48px; margin-bottom: 8px; }
+  .setup-header h2 { font-family: 'Nunito', sans-serif; font-size: 22px; font-weight: 900; }
+  .setup-header p { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+
+  .setup-body { padding: 24px; }
+
+  .label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--teks);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .players-section { margin-bottom: 20px; }
+
+  .player-input-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .player-list { margin-bottom: 10px; }
+  .player-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--ungu-muda);
+    color: var(--ungu);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 3px;
+  }
+  .player-tag button {
+    background: none;
+    border: none;
+    color: var(--ungu);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    border: 2px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    color: var(--teks);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus { border-color: var(--ungu); }
+
+  .btn {
+    border: none;
+    border-radius: 12px;
+    padding: 11px 18px;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 14px;
+    margin-top: 8px;
+    box-shadow: 0 4px 15px rgba(118,75,162,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(118,75,162,0.45); }
+  .btn-add {
+    background: var(--ungu);
+    color: white;
+    border-radius: 12px;
+    padding: 10px 16px;
+    white-space: nowrap;
+  }
+
+  /* ===== SPIN SCREEN ===== */
+  .spin-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+  }
+  .spin-header .round-badge {
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .spin-header h2 { font-family: 'Nunito', sans-serif; font-size: 18px; font-weight: 900; flex: 1; }
+
+  .spin-body { padding: 24px; text-align: center; }
+
+  /* Roulette */
+  .roulette-wrap {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto 20px;
+  }
+  canvas#roulette {
+    border-radius: 50%;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  }
+  .roulette-pointer {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 28px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  }
+
+  .current-player {
+    background: var(--ungu-muda);
+    border-radius: 14px;
+    padding: 12px 20px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--teks-abu);
+  }
+  .current-player strong { color: var(--ungu); font-size: 16px; display: block; }
+
+  .btn-spin {
+    background: linear-gradient(135deg, #F59E0B, #EF4444);
+    color: white;
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 14px;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(239,68,68,0.35);
+    font-family: 'Nunito', sans-serif;
+  }
+  .btn-spin:hover { transform: translateY(-1px); }
+  .btn-spin:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* ===== CHOICE SCREEN ===== */
+  .choice-body { padding: 28px 24px; text-align: center; }
+  .giliran-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--teks-abu);
+    margin-bottom: 6px;
+  }
+  .giliran-nama {
+    font-family: 'Nunito', sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--ungu);
+    margin-bottom: 20px;
+  }
+  .pilihan-label {
+    font-size: 14px;
+    color: var(--teks-abu);
+    margin-bottom: 16px;
+  }
+  .choice-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .btn-truth {
+    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+    color: white;
+    padding: 20px;
+    border-radius: 18px;
+    font-size: 22px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    box-shadow: 0 4px 15px rgba(37,99,235,0.35);
+  }
+  .btn-truth:hover { transform: translateY(-2px); }
+  .btn-dare {
+    background: linear-gradient(135deg, #DC2626, #B91C1C);
+    color: white;
+    padding: 20px;
+    border-radius: 18px;
+    font-size: 22px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    box-shadow: 0 4px 15px rgba(220,38,38,0.35);
+  }
+  .btn-dare:hover { transform: translateY(-2px); }
+  .btn-truth span, .btn-dare span { display: block; font-size: 11px; font-family: 'Poppins', sans-serif; font-weight: 400; opacity: 0.85; margin-top: 4px; }
+
+  /* ===== QUESTION SCREEN ===== */
+  .question-header {
+    padding: 20px 24px 16px;
+    text-align: center;
+  }
+  .q-type-badge {
+    display: inline-block;
+    border-radius: 20px;
+    padding: 6px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .q-type-badge.truth { background: var(--biru-muda); color: var(--biru); }
+  .q-type-badge.dare { background: #FEE2E2; color: var(--merah); }
+
+  .q-player { font-size: 13px; color: var(--teks-abu); margin-bottom: 4px; }
+  .q-player strong { color: var(--teks); }
+
+  .question-box {
+    margin: 0 24px 20px;
+    border-radius: 18px;
+    padding: 24px 20px;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .question-box.truth { background: var(--biru-muda); border: 2px solid #BFDBFE; }
+  .question-box.dare { background: #FEE2E2; border: 2px solid #FECACA; }
+  .question-box p {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--teks);
+    line-height: 1.5;
+  }
+
+  .refleksi-section {
+    margin: 0 24px 20px;
+    background: var(--hijau-muda);
+    border-radius: 14px;
+    padding: 14px 16px;
+    border-left: 4px solid var(--hijau);
+  }
+  .refleksi-section .refleksi-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--hijau);
+    margin-bottom: 4px;
+  }
+  .refleksi-section p { font-size: 12px; color: #065F46; line-height: 1.5; }
+
+  .q-actions { padding: 0 24px 24px; display: flex; gap: 10px; }
+  .btn-skip {
+    flex: 1;
+    background: var(--abu);
+    color: var(--teks-abu);
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+  .btn-selesai {
+    flex: 2;
+    background: linear-gradient(135deg, #059669, #047857);
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(5,150,105,0.3);
+  }
+
+  /* ===== SKOR SCREEN ===== */
+  .skor-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 28px 24px;
+    text-align: center;
+    color: white;
+  }
+  .skor-header .trophy { font-size: 52px; margin-bottom: 8px; }
+  .skor-header h2 { font-family: 'Nunito', sans-serif; font-size: 24px; font-weight: 900; }
+  .skor-header p { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+
+  .skor-body { padding: 20px 24px 28px; }
+  .skor-list { margin-bottom: 20px; }
+  .skor-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    margin-bottom: 8px;
+    background: var(--abu);
+  }
+  .skor-item.rank-1 { background: var(--kuning-muda); border: 2px solid #FCD34D; }
+  .skor-item.rank-2 { background: #F1F5F9; border: 2px solid #CBD5E1; }
+  .skor-item.rank-3 { background: #FEF3C7; border: 2px solid #FDE68A; }
+  .skor-rank { font-size: 20px; width: 30px; text-align: center; }
+  .skor-nama { flex: 1; font-weight: 600; font-size: 15px; color: var(--teks); }
+  .skor-poin { font-size: 13px; color: var(--teks-abu); }
+  .skor-poin strong { color: var(--ungu); font-size: 16px; }
+
+  .btn-ulang {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    box-shadow: 0 4px 15px rgba(118,75,162,0.35);
+    margin-bottom: 10px;
+  }
+  .btn-setup-ulang {
+    background: var(--abu);
+    color: var(--teks-abu);
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    border-radius: 14px;
+  }
+
+  /* Loading */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    color: white;
+    font-size: 14px;
+    text-align: center;
+  }
+  .loading-overlay.show { display: flex; }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 4px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .footer {
+    text-align: center;
+    color: rgba(255,255,255,0.6);
+    font-size: 11px;
+    margin-top: 16px;
+    padding-bottom: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="badge">Media BK Interaktif</div>
+  <h1>Truth or <span>Dare</span></h1>
+  <p>Belajar Resolusi Konflik dengan Cara Seru</p>
+</div>
+
+<div class="card">
+
+  <!-- ===== SCREEN 1: SETUP ===== -->
+  <div class="screen active" id="screen-setup">
+    <div class="setup-header">
+      <div class="icon">👥</div>
+      <h2>Daftar Pemain</h2>
+      <p>Masukkan nama teman-teman yang ikut bermain</p>
+    </div>
+    <div class="setup-body">
+      <div class="players-section">
+        <span class="label">Nama Pemain (min. 2 orang)</span>
+        <div class="player-list" id="player-list"></div>
+        <div class="player-input-group">
+          <input type="text" id="input-nama" placeholder="Ketik nama pemain..." maxlength="20" />
+          <button class="btn btn-add" onclick="tambahPemain()">+ Tambah</button>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="mulaiPermainan()">🎮 Mulai Permainan</button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 2: SPIN ===== -->
+  <div class="screen" id="screen-spin">
+    <div class="spin-header">
+      <h2>🎯 Giliran Siapa?</h2>
+      <div class="round-badge" id="round-info">Ronde 1</div>
+    </div>
+    <div class="spin-body">
+      <div class="roulette-wrap">
+        <div class="roulette-pointer">▼</div>
+        <canvas id="roulette" width="220" height="220"></canvas>
+      </div>
+      <div class="current-player">
+        <span>Pemain yang bermain:</span>
+        <strong id="label-giliran">Putar roda untuk memilih!</strong>
+      </div>
+      <button class="btn btn-spin" id="btn-spin" onclick="putarRoda()">🎰 Putar Roda!</button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 3: CHOICE ===== -->
+  <div class="screen" id="screen-choice">
+    <div class="choice-body">
+      <div class="giliran-label">Sekarang giliran</div>
+      <div class="giliran-nama" id="choice-nama">—</div>
+      <div class="pilihan-label">Pilih tantanganmu:</div>
+      <div class="choice-btns">
+        <button class="btn btn-truth" onclick="pilihTipe('truth')">
+          💬 Truth
+          <span>Jujur menjawab</span>
+        </button>
+        <button class="btn btn-dare" onclick="pilihTipe('dare')">
+          🔥 Dare
+          <span>Berani bertindak</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 4: QUESTION ===== -->
+  <div class="screen" id="screen-question">
+    <div class="question-header">
+      <div class="q-type-badge" id="q-type-badge">TRUTH</div>
+      <div class="q-player">Pertanyaan untuk: <strong id="q-player-name">—</strong></div>
+    </div>
+    <div class="question-box" id="question-box">
+      <p id="question-text">Memuat pertanyaan...</p>
+    </div>
+    <div class="refleksi-section" id="refleksi-box">
+      <div class="refleksi-label">🌱 Refleksi BK</div>
+      <p id="refleksi-text">—</p>
+    </div>
+    <div class="q-actions">
+      <button class="btn btn-skip" onclick="skipPertanyaan()">🔄 Skip</button>
+      <button class="btn btn-selesai" onclick="selesaiGiliran()">✅ Sudah Selesai (+10 poin)</button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 5: SKOR ===== -->
+  <div class="screen" id="screen-skor">
+    <div class="skor-header">
+      <div class="trophy">🏆</div>
+      <h2>Permainan Selesai!</h2>
+      <p id="skor-subtitle">Lihat siapa yang paling berani dan jujur</p>
+    </div>
+    <div class="skor-body">
+      <div class="skor-list" id="skor-list"></div>
+      <button class="btn btn-ulang" onclick="ulangPermainan()">🔄 Main Lagi</button>
+      <button class="btn btn-setup-ulang" onclick="setupUlang()">👥 Ganti Pemain</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">SMK Bina Cendika YPK Malang · Media BK Resolusi Konflik</div>
+
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div>Memuat pertanyaan dari AI...</div>
+</div>
+
+<script>
+// ===== STATE =====
+let pemain = [];
+let skorPemain = {};
+let indexGiliran = 0;
+let ronde = 1;
+let pemainSaatIni = '';
+let tipeSaatIni = '';
+let isSpinning = false;
+let sudahSpin = false;
+let pertanyaanCache = { truth: [], dare: [] };
+let skipCount = 0;
+
+const WARNA_RODA = ['#667eea','#764ba2','#f093fb','#4facfe','#43e97b','#fa709a','#a18cd1','#fccb90'];
+
+// ===== SETUP =====
+function tambahPemain() {
+  const input = document.getElementById('input-nama');
+  const nama = input.value.trim();
+  if (!nama) return;
+  if (pemain.includes(nama)) { alert('Nama sudah ada!'); return; }
+  if (pemain.length >= 8) { alert('Maksimal 8 pemain!'); return; }
+  pemain.push(nama);
+  skorPemain[nama] = 0;
+  renderPlayerList();
+  input.value = '';
+  input.focus();
+}
+
+document.getElementById('input-nama').addEventListener('keydown', e => {
+  if (e.key === 'Enter') tambahPemain();
+});
+
+function hapusPemain(nama) {
+  pemain = pemain.filter(p => p !== nama);
+  delete skorPemain[nama];
+  renderPlayerList();
+}
+
+function renderPlayerList() {
+  const el = document.getElementById('player-list');
+  el.innerHTML = pemain.map(p =>
+    `<span class="player-tag">👤 ${p} <button onclick="hapusPemain('${p}')">✕</button></span>`
+  ).join('');
+}
+
+function mulaiPermainan() {
+  if (pemain.length < 2) { alert('Minimal 2 pemain ya!'); return; }
+  indexGiliran = 0;
+  ronde = 1;
+  pemain.forEach(p => skorPemain[p] = 0);
+  gambarRoda();
+  gotoScreen('screen-spin');
+  updateRondeInfo();
+}
+
+// ===== RODA =====
+function gambarRoda(angle = 0) {
+  const canvas = document.getElementById('roulette');
+  const ctx = canvas.getContext('2d');
+  const cx = 110, cy = 110, r = 106;
+  const n = pemain.length;
+  const arc = (2 * Math.PI) / n;
+  ctx.clearRect(0, 0, 220, 220);
+
+  for (let i = 0; i < n; i++) {
+    const start = angle + i * arc;
+    const end = start + arc;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, end);
+    ctx.fillStyle = WARNA_RODA[i % WARNA_RODA.length];
+    ctx.fill();
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + arc / 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 13px Poppins, sans-serif';
+    const nama = pemain[i].length > 8 ? pemain[i].slice(0,7)+'…' : pemain[i];
+    ctx.fillText(nama, r - 10, 5);
+    ctx.restore();
+  }
+
+  // Lingkaran tengah
+  ctx.beginPath();
+  ctx.arc(cx, cy, 22, 0, 2 * Math.PI);
+  ctx.fillStyle = 'white';
+  ctx.fill();
+  ctx.font = 'bold 18px Nunito';
+  ctx.fillStyle = '#764ba2';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🎯', cx, cy);
+}
+
+function putarRoda() {
+  if (isSpinning) return;
+  isSpinning = true;
+  sudahSpin = true;
+  document.getElementById('btn-spin').disabled = true;
+  document.getElementById('label-giliran').textContent = 'Memutar...';
+
+  const n = pemain.length;
+  const arc = (2 * Math.PI) / n;
+  const targetIdx = indexGiliran % n;
+  // Hitung sudut supaya pointer (atas) mengarah ke pemain target
+  const extraSpins = 5 * 2 * Math.PI;
+  const targetAngle = -Math.PI/2 - (targetIdx * arc + arc/2);
+  const totalRotation = extraSpins + (targetAngle % (2*Math.PI) + 2*Math.PI) % (2*Math.PI);
+
+  let start = null;
+  let currentAngle = 0;
+  const duration = 3000;
+
+  function easeOut(t) { return 1 - Math.pow(1 - t, 4); }
+
+  function animate(ts) {
+    if (!start) start = ts;
+    const elapsed = ts - start;
+    const progress = Math.min(elapsed / duration, 1);
+    currentAngle = easeOut(progress) * totalRotation;
+    gambarRoda(currentAngle);
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      isSpinning = false;
+      pemainSaatIni = pemain[targetIdx];
+      document.getElementById('label-giliran').textContent = `🎉 ${pemainSaatIni}!`;
+      setTimeout(() => {
+        document.getElementById('choice-nama').textContent = pemainSaatIni;
+        gotoScreen('screen-choice');
+      }, 800);
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+// ===== PILIH TIPE =====
+async function pilihTipe(tipe) {
+  tipeSaatIni = tipe;
+  await tampilkanPertanyaan(tipe);
+}
+
+// ===== PERTANYAAN berdasarkan 4 Aspek Scannell (2010) =====
+const bankTruth = [
+  // Aspek 1: Keterampilan Berkomunikasi
+  { q: "Ketika temanmu sedang bercerita tentang masalahnya, apa yang biasanya kamu lakukan untuk menunjukkan bahwa kamu benar-benar mendengarkan?", r: "Mendengarkan aktif adalah kunci keterampilan berkomunikasi. Scannell (2010) menyebut kemampuan ini sebagai dasar resolusi konflik yang efektif." },
+  { q: "Pernahkah kamu salah paham dengan teman karena kurang jelasnya komunikasi? Ceritakan dan bagaimana cara kamu mengatasinya.", r: "Mengungkapkan perasaan dan pikiran secara jelas dan terbuka adalah capaian utama aspek keterampilan berkomunikasi menurut Scannell (2010)." },
+  { q: "Bagaimana caramu menyampaikan pendapat yang berbeda kepada teman tanpa membuatnya merasa diserang?", r: "Kemampuan memberikan umpan balik yang membangun tanpa menyinggung merupakan bagian dari keterampilan berkomunikasi dalam resolusi konflik." },
+  // Aspek 2: Kecerdasan Emosi
+  { q: "Bagaimana cara kamu mengendalikan emosi ketika menghadapi konflik dengan teman dekat?", r: "Mengenali dan mengelola emosi saat konflik adalah inti dari kecerdasan emosi menurut Scannell (2010) yang mendukung penyelesaian konflik secara bijak." },
+  { q: "Pernahkah kamu merasa sangat marah dalam konflik tapi berhasil tetap tenang? Apa yang kamu lakukan?", r: "Kemampuan berpikir jernih dan bertindak bijaksana saat emosi memuncak adalah capaian kecerdasan emosi yang penting dalam resolusi konflik." },
+  { q: "Bagaimana perasaanmu ketika melihat teman yang sedang sedih akibat konflik? Apa yang kamu lakukan?", r: "Berempati dengan perasaan teman adalah bagian dari kecerdasan emosi yang membantu menciptakan solusi konflik yang adil dan manusiawi." },
+  // Aspek 3: Kepercayaan Terhadap Sesama
+  { q: "Pernahkah kamu mengkhianati kepercayaan temanmu? Apa yang kamu rasakan dan lakukan setelahnya?", r: "Bersikap jujur dan terbuka adalah capaian aspek kepercayaan terhadap sesama menurut Scannell (2010) yang menjadi fondasi hubungan tanpa konflik." },
+  { q: "Apa yang kamu lakukan agar teman-temanmu bisa mempercayaimu kembali setelah terjadi konflik?", r: "Membangun kembali kepercayaan melalui komitmen dan kejujuran adalah kunci aspek kepercayaan terhadap sesama dalam resolusi konflik." },
+  // Aspek 4: Kemampuan Menghargai Perbedaan
+  { q: "Pernahkah kamu berbeda pendapat dengan teman dekat? Bagaimana cara kamu mengatasinya tanpa merusak pertemanan?", r: "Menerima dan menghormati perbedaan pendapat adalah capaian aspek menghargai perbedaan menurut Scannell (2010)." },
+  { q: "Bagaimana sikapmu ketika teman memiliki kebiasaan atau karakter yang sangat berbeda darimu?", r: "Bersikap toleran terhadap perbedaan karakter teman merupakan bagian penting dari kemampuan menghargai perbedaan dalam resolusi konflik." },
+  { q: "Bagaimana caramu meminta maaf kepada teman setelah terjadi konflik? Apa yang biasanya kamu katakan?", r: "Meminta maaf dengan tulus dan menjaga komitmen adalah capaian aspek kepercayaan terhadap sesama menurut Scannell (2010)." },
+  { q: "Sebutkan satu perbedaan antara kamu dan temanmu yang justru membuat pertemanan kalian lebih kuat.", r: "Mampu bekerja sama meskipun memiliki pandangan berbeda adalah capaian tertinggi aspek menghargai perbedaan menurut Scannell (2010)." },
+];
+
+const bankDare = [
+  // Aspek 1: Keterampilan Berkomunikasi
+  { q: "Praktikkan teknik mendengarkan aktif: minta satu pemain bercerita masalahnya, lalu ulangi inti ceritanya tanpa menghakimi.", r: "Mendengarkan tanpa menyela dan memberikan umpan balik yang membangun adalah capaian aspek keterampilan berkomunikasi menurut Scannell (2010)." },
+  { q: "Praktikkan cara menyampaikan pendapat yang berbeda menggunakan kalimat 'Saya merasa...' bukan 'Kamu selalu...' kepada salah satu pemain.", r: "Mengungkapkan pikiran secara jelas dan terbuka tanpa menyinggung adalah bagian dari keterampilan berkomunikasi dalam resolusi konflik." },
+  { q: "Tunjukkan perbedaan bahasa tubuh 'menutup diri' dan 'siap mendengarkan' kepada teman-teman, lalu jelaskan perbedaannya.", r: "Komunikasi non-verbal yang terbuka mendukung terciptanya dialog yang sehat dalam penyelesaian konflik." },
+  // Aspek 2: Kecerdasan Emosi
+  { q: "Peragakan 3 ekspresi emosi berbeda (marah, sedih, kecewa) lalu minta teman-teman menebaknya.", r: "Mengenali ekspresi emosi diri sendiri dan orang lain adalah bagian dari kecerdasan emosi yang mendukung resolusi konflik menurut Scannell (2010)." },
+  { q: "Lakukan role play: kamu sedang sangat marah karena salah paham dengan teman. Tunjukkan cara menenangkan diri sebelum berbicara.", r: "Kemampuan mengelola emosi sebelum merespons konflik adalah capaian kecerdasan emosi yang bijaksana menurut Scannell (2010)." },
+  // Aspek 3: Kepercayaan Terhadap Sesama
+  { q: "Berjalan mundur dengan mata tertutup, biarkan temanmu mengarahkan. Lakukan selama 30 detik.", r: "Aktivitas ini melatih kepercayaan terhadap sesama sebagai fondasi hubungan yang bebas konflik menurut Scannell (2010)." },
+  { q: "Ungkapkan satu hal jujur yang selama ini ingin kamu sampaikan kepada teman-teman di sini (hal positif).", r: "Kejujuran dan keterbukaan adalah capaian aspek kepercayaan terhadap sesama yang mempererat hubungan pertemanan." },
+  // Aspek 4: Kemampuan Menghargai Perbedaan
+  { q: "Sebutkan 3 hal yang kamu kagumi dari teman yang paling berbeda karakternya denganmu.", r: "Mengakui kelebihan teman yang berbeda dari kita melatih kemampuan menghargai perbedaan menurut Scannell (2010)." },
+  { q: "Buat satu kesepakatan kelompok yang disepakati semua pemain untuk menjaga hubungan pertemanan tetap harmonis.", r: "Bermusyawarah dan bekerja sama meskipun berbeda pendapat adalah capaian aspek menghargai perbedaan dalam resolusi konflik." },
+  { q: "Berikan pujian yang jujur dan tulus kepada setiap pemain dalam 1 menit.", r: "Menghargai keunikan setiap teman adalah bagian dari kemampuan menghargai perbedaan yang membangun hubungan positif." },
+];
+
+let usedTruth = [], usedDare = [];
+
+async function tampilkanPertanyaan(tipe) {
+  gotoScreen('screen-question');
+  const badge = document.getElementById('q-type-badge');
+  const box = document.getElementById('question-box');
+  const qText = document.getElementById('question-text');
+  const refleksi = document.getElementById('refleksi-text');
+  const refleksiBox = document.getElementById('refleksi-box');
+
+  badge.className = `q-type-badge ${tipe}`;
+  badge.textContent = tipe === 'truth' ? '💬 TRUTH' : '🔥 DARE';
+  box.className = `question-box ${tipe}`;
+  document.getElementById('q-player-name').textContent = pemainSaatIni;
+
+  // Pilih dari bank lokal dulu (cepat)
+  const bank = tipe === 'truth' ? bankTruth : bankDare;
+  const used = tipe === 'truth' ? usedTruth : usedDare;
+
+  let available = bank.filter((_, i) => !used.includes(i));
+  if (available.length === 0) {
+    if (tipe === 'truth') usedTruth = []; else usedDare = [];
+    available = bank;
+  }
+  const idx = Math.floor(Math.random() * available.length);
+  const item = available[idx];
+  const globalIdx = bank.indexOf(item);
+  if (tipe === 'truth') usedTruth.push(globalIdx); else usedDare.push(globalIdx);
+
+  qText.textContent = item.q;
+  refleksi.textContent = item.r;
+  refleksiBox.style.display = 'block';
+  skipCount = 0;
+}
+
+// ===== AKSI PERTANYAAN =====
+function skipPertanyaan() {
+  skipCount++;
+  if (skipCount >= 2) {
+    alert('Skip sudah 2 kali. Yuk coba jawab! 😊');
+    return;
+  }
+  tampilkanPertanyaan(tipeSaatIni);
+}
+
+function selesaiGiliran() {
+  skorPemain[pemainSaatIni] = (skorPemain[pemainSaatIni] || 0) + 10;
+  indexGiliran++;
+
+  const TOTAL_RONDE = pemain.length * 2;
+  if (indexGiliran >= TOTAL_RONDE) {
+    tampilkanSkor();
+    return;
+  }
+
+  ronde = Math.floor(indexGiliran / pemain.length) + 1;
+  updateRondeInfo();
+  document.getElementById('label-giliran').textContent = 'Putar roda untuk memilih!';
+  document.getElementById('btn-spin').disabled = false;
+  gotoScreen('screen-spin');
+  gambarRoda();
+}
+
+function updateRondeInfo() {
+  document.getElementById('round-info').textContent = `Ronde ${ronde}`;
+}
+
+// ===== SKOR =====
+function tampilkanSkor() {
+  const sorted = Object.entries(skorPemain).sort((a,b) => b[1]-a[1]);
+  const medals = ['🥇','🥈','🥉'];
+  const rankClass = ['rank-1','rank-2','rank-3'];
+
+  const html = sorted.map(([nama, skor], i) => `
+    <div class="skor-item ${rankClass[i] || ''}">
+      <div class="skor-rank">${medals[i] || `${i+1}`}</div>
+      <div class="skor-nama">${nama}</div>
+      <div class="skor-poin"><strong>${skor}</strong> poin</div>
+    </div>
+  `).join('');
+
+  document.getElementById('skor-list').innerHTML = html;
+  document.getElementById('skor-subtitle').textContent = `${sorted[0][0]} menjadi yang terbaik! 🎉`;
+  gotoScreen('screen-skor');
+}
+
+function ulangPermainan() {
+  pemain.forEach(p => skorPemain[p] = 0);
+  indexGiliran = 0;
+  ronde = 1;
+  usedTruth = []; usedDare = [];
+  gambarRoda();
+  updateRondeInfo();
+  document.getElementById('label-giliran').textContent = 'Putar roda untuk memilih!';
+  document.getElementById('btn-spin').disabled = false;
+  gotoScreen('screen-spin');
+}
+
+function setupUlang() {
+  pemain = [];
+  skorPemain = {};
+  indexGiliran = 0;
+  ronde = 1;
+  usedTruth = []; usedDare = [];
+  document.getElementById('player-list').innerHTML = '';
+  gotoScreen('screen-setup');
+}
+
+// ===== HELPER =====
+function gotoScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// Init
+gambarRoda();
+</script>
+</body>
+</html>
