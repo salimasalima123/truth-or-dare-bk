@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Truth or Dare – Resolusi Konflik</title>
+<style>
+  :root {
+    --pink-light: #FFF0F5;
+    --pink-mid: #FFD6E7;
+    --pink-main: #FF69B4;
+    --pink-deep: #E91E8C;
+    --pink-dark: #C2185B;
+    --purple: #9C27B0;
+    --purple-light: #F3E5F5;
+    --white: #FFFFFF;
+    --text: #2D1B2E;
+    --text-soft: #6D4C7D;
+    --gold: #FFB300;
+    --green: #4CAF50;
+    --blue: #1976D2;
+    --red: #D32F2F;
+    --gray-light: #F8F8F8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #FFF0F5 0%, #F8E1F4 50%, #FFD6E7 100%);
+    min-height: 100vh;
+    color: var(--text);
+  }
+
+  /* ===== PAGE SYSTEM ===== */
+  .page { display: none; min-height: 100vh; padding: 24px 16px; animation: fadeIn .3s ease; }
+  .page.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ===== HEADER ===== */
+  .brand {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .brand h1 {
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+  }
+  .brand h1 span.truth { color: var(--purple); }
+  .brand h1 span.or { color: var(--text-soft); font-weight: 400; font-size: 1.6rem; }
+  .brand h1 span.dare { color: var(--pink-deep); }
+  .brand p {
+    color: var(--text-soft);
+    font-size: 0.95rem;
+    margin-top: 4px;
+  }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 28px 24px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 8px 32px rgba(233,30,140,0.12);
+  }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    text-align: center;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-pink {
+    background: linear-gradient(135deg, var(--pink-main), var(--pink-deep));
+    color: white;
+    box-shadow: 0 4px 16px rgba(233,30,140,0.3);
+  }
+  .btn-pink:hover { box-shadow: 0 6px 20px rgba(233,30,140,0.45); }
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--pink-main);
+    color: var(--pink-deep);
+  }
+  .btn-orange {
+    background: linear-gradient(135deg, #FF8C00, #FF4500);
+    color: white;
+    box-shadow: 0 4px 16px rgba(255,69,0,0.3);
+  }
+  .btn-green {
+    background: linear-gradient(135deg, #43A047, #2E7D32);
+    color: white;
+    box-shadow: 0 4px 16px rgba(46,125,50,0.3);
+  }
+  .btn-gray {
+    background: #eee;
+    color: #666;
+  }
+  .btn-purple {
+    background: linear-gradient(135deg, var(--purple), #6A1B9A);
+    color: white;
+    box-shadow: 0 4px 16px rgba(106,27,154,0.3);
+  }
+
+  /* ===== INPUT ===== */
+  .input-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .input-row input {
+    flex: 1;
+    padding: 14px 16px;
+    border: 2px solid var(--pink-mid);
+    border-radius: 14px;
+    font-size: 1rem;
+    outline: none;
+    transition: border .2s;
+    background: var(--pink-light);
+  }
+  .input-row input:focus { border-color: var(--pink-main); }
+  .btn-add {
+    width: 50px; height: 50px;
+    background: var(--pink-deep);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 1.4rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* ===== PLAYER TAGS ===== */
+  .player-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 40px;
+    margin-bottom: 8px;
+  }
+  .tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--purple-light);
+    color: var(--purple);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .tag button {
+    background: none; border: none; cursor: pointer;
+    color: var(--purple); font-size: 1rem; line-height: 1;
+  }
+
+  /* ===== WHEEL ===== */
+  #wheelCanvas {
+    display: block;
+    margin: 0 auto;
+    border-radius: 50%;
+    box-shadow: 0 8px 32px rgba(233,30,140,0.2);
+  }
+  .wheel-wrap { position: relative; margin: 16px 0; }
+  .wheel-pointer {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.8rem;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,.2));
+  }
+
+  /* ===== CHOICE BUTTONS ===== */
+  .choice-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .btn-truth {
+    background: linear-gradient(135deg, #1976D2, #0D47A1);
+    color: white;
+    padding: 20px 16px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 800;
+    box-shadow: 0 4px 16px rgba(13,71,161,0.3);
+    transition: all .2s;
+  }
+  .btn-dare {
+    background: linear-gradient(135deg, #D32F2F, #B71C1C);
+    color: white;
+    padding: 20px 16px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 800;
+    box-shadow: 0 4px 16px rgba(183,28,28,0.3);
+    transition: all .2s;
+  }
+  .btn-truth:active, .btn-dare:active { transform: scale(.97); }
+  .btn-truth small, .btn-dare small {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 400;
+    margin-top: 4px;
+    opacity: .85;
+  }
+
+  /* ===== QUESTION CARD ===== */
+  .q-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: .5px;
+  }
+  .badge-truth { background: #E3F0FF; color: #1565C0; }
+  .badge-dare { background: #FFEBEE; color: #C62828; }
+
+  .q-text {
+    background: var(--pink-light);
+    border-radius: 16px;
+    padding: 20px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .refleksi-box {
+    background: #F0FFF4;
+    border-left: 4px solid var(--green);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  .refleksi-box .r-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  .refleksi-box p {
+    font-size: 0.9rem;
+    color: #2E7D32;
+    line-height: 1.5;
+  }
+
+  /* ===== SCOREBOARD ===== */
+  .score-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .score-1st { background: #FFF9E6; }
+  .score-2nd { background: #F5F5F5; }
+  .score-3rd { background: #FFF3E0; }
+  .score-other { background: var(--gray-light); }
+  .medal { font-size: 1.4rem; }
+  .score-name { flex: 1; font-size: 1rem; }
+  .score-pts { font-size: 1rem; color: var(--pink-deep); }
+
+  /* ===== SECTION LABEL ===== */
+  .section-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-soft);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+
+  /* ===== CURRENT PLAYER ===== */
+  .current-box {
+    text-align: center;
+    padding: 16px;
+    background: var(--pink-light);
+    border-radius: 16px;
+    margin-bottom: 16px;
+  }
+  .current-box .c-label {
+    font-size: 0.82rem;
+    color: var(--text-soft);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  .current-box .c-name {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--pink-deep);
+    margin-top: 2px;
+  }
+
+  /* ===== RONDE BADGE ===== */
+  .ronde-badge {
+    background: var(--purple-light);
+    color: var(--purple);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  /* ===== TROPHY ===== */
+  .trophy-wrap { text-align: center; margin-bottom: 20px; }
+  .trophy-emoji { font-size: 3.5rem; }
+  .trophy-title { font-size: 1.5rem; font-weight: 900; color: var(--text); margin-top: 8px; }
+  .trophy-sub { font-size: 0.95rem; color: var(--text-soft); margin-top: 4px; }
+
+  /* ===== MISC ===== */
+  .gap-12 { height: 12px; }
+  .gap-16 { height: 16px; }
+  .text-center { text-align: center; }
+  .text-soft { color: var(--text-soft); font-size: 0.9rem; }
+
+  /* ===== INTRO PAGE SPECIFIC ===== */
+  #page-intro .hero-emoji { font-size: 3rem; margin-bottom: 8px; }
+  #page-intro .hero-title { font-size: 2.6rem; font-weight: 900; line-height: 1; }
+  #page-intro .hero-title .truth { color: var(--purple); }
+  #page-intro .hero-title .dare { color: var(--pink-deep); }
+  #page-intro .hero-sub {
+    font-size: 1rem;
+    color: var(--text-soft);
+    margin: 10px 0 28px;
+    line-height: 1.5;
+  }
+
+  /* ===== SPIN STATUS ===== */
+  .spin-status {
+    text-align: center;
+    padding: 14px;
+    background: var(--pink-light);
+    border-radius: 14px;
+    font-size: 0.95rem;
+    margin-bottom: 14px;
+    color: var(--text-soft);
+  }
+  .spin-status strong { color: var(--pink-deep); font-size: 1.1rem; }
+
+  @media (max-width: 400px) {
+    .card { padding: 20px 16px; }
+    #page-intro .hero-title { font-size: 2.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== PAGE 1: INTRO ========== -->
+<div class="page active" id="page-intro">
+  <div style="text-align:center; max-width:420px; width:100%;">
+    <div class="hero-emoji">🎮</div>
+    <div class="hero-title">
+      <span class="truth">Truth</span>
+      <span style="color:#999; font-weight:300"> or </span>
+      <span class="dare">Dare</span>
+    </div>
+    <p class="hero-sub">Belajar resolusi konflik dengan cara yang menyenangkan</p>
+    <div class="card">
+      <p class="section-label">Media Bimbingan dan Konseling</p>
+      <div class="gap-12"></div>
+      <button class="btn btn-pink" onclick="showPage('page-players')">Mulai Permainan 🎯</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 2: DAFTAR PEMAIN ========== -->
+<div class="page" id="page-players">
+  <div class="brand">
+    <h1><span class="truth">Truth</span> <span class="or">or</span> <span class="dare">Dare</span></h1>
+  </div>
+  <div class="card">
+    <div style="text-align:center; margin-bottom:10px;">
+      <div style="font-size:2rem;">👥</div>
+      <h2 style="font-size:1.3rem; font-weight:800; margin-top:4px;">Daftar Pemain</h2>
+    </div>
+    <div class="player-tags" id="playerTags"></div>
+    <div class="input-row">
+      <input type="text" id="playerInput" placeholder="Ketik nama pemain..." onkeydown="if(event.key==='Enter')addPlayer()"/>
+      <button class="btn-add" onclick="addPlayer()">+</button>
+    </div>
+    <div class="gap-12"></div>
+    <button class="btn btn-pink" onclick="startGame()">🎮 Mulai Permainan</button>
+  </div>
+</div>
+
+<!-- ========== PAGE 3: SPIN RODA ========== -->
+<div class="page" id="page-spin">
+  <div class="brand">
+    <h1><span class="truth">Truth</span> <span class="or">or</span> <span class="dare">Dare</span></h1>
+  </div>
+  <div class="card">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+      <p style="font-weight:700; font-size:1rem;">🎯 Giliran Siapa?</p>
+      <span class="ronde-badge" id="rondeLabel">Ronde 1</span>
+    </div>
+    <div class="wheel-wrap">
+      <div class="wheel-pointer">▼</div>
+      <canvas id="wheelCanvas" width="270" height="270"></canvas>
+    </div>
+    <div class="spin-status" id="spinStatus" style="display:none;"></div>
+    <button class="btn btn-orange" id="spinBtn" onclick="spinWheel()">Putar</button>
+  </div>
+</div>
+
+<!-- ========== PAGE 4: PILIH TRUTH / DARE ========== -->
+<div class="page" id="page-choice">
+  <div class="brand">
+    <h1><span class="truth">Truth</span> <span class="or">or</span> <span class="dare">Dare</span></h1>
+  </div>
+  <div class="card">
+    <div class="current-box">
+      <div class="c-label">Sekarang Giliran</div>
+      <div class="c-name" id="choicePlayerName">–</div>
+    </div>
+    <p class="text-soft text-center" style="margin-bottom:14px;">Pilih tantanganmu:</p>
+    <div class="choice-row">
+      <button class="btn-truth" onclick="showQuestion('truth')">
+        💬 Truth
+        <small>Jujur menjawab</small>
+      </button>
+      <button class="btn-dare" onclick="showQuestion('dare')">
+        🔥 Dare
+        <small>Berani bertindak</small>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 5: PERTANYAAN ========== -->
+<div class="page" id="page-question">
+  <div class="brand">
+    <h1><span class="truth">Truth</span> <span class="or">or</span> <span class="dare">Dare</span></h1>
+  </div>
+  <div class="card">
+    <div style="text-align:center; margin-bottom:4px;">
+      <span class="q-type-badge" id="qBadge">💬 TRUTH</span>
+    </div>
+    <p style="font-size:0.85rem; color:var(--text-soft); margin-bottom:12px;">
+      Pertanyaan untuk: <strong id="qPlayerName" style="color:var(--pink-deep);">–</strong>
+    </p>
+    <div class="q-text" id="qText">–</div>
+    <div class="refleksi-box">
+      <div class="r-label">🌱 Refleksi BK</div>
+      <p id="qRefleksi">–</p>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <button class="btn btn-gray" onclick="skipQuestion()">↩ Skip</button>
+      <button class="btn btn-green" onclick="doneQuestion()">✅ Selesai (+10 poin)</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE AKHIR: LEADERBOARD ========== -->
+<div class="page" id="page-end">
+  <div class="brand">
+    <h1><span class="truth">Truth</span> <span class="or">or</span> <span class="dare">Dare</span></h1>
+  </div>
+  <div class="card">
+    <div class="trophy-wrap">
+      <div class="trophy-emoji">🏆</div>
+      <div class="trophy-title">Permainan Selesai!</div>
+      <div class="trophy-sub" id="winnerText">–</div>
+    </div>
+    <div id="leaderboard"></div>
+    <div class="gap-16"></div>
+    <button class="btn btn-purple" onclick="playAgain()">🔁 Main lagi</button>
+    <div class="gap-12"></div>
+    <button class="btn btn-outline" onclick="showPage('page-players')">👥 Ganti pemain</button>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const TRUTH = [
+  { q: "Ketika temanmu sedang bercerita tentang masalahnya, apa yang biasanya kamu lakukan untuk menunjukkan bahwa kamu benar-benar mendengarkan?", r: "Mendengarkan dengan sungguh-sungguh adalah dasar dari komunikasi yang baik.", cat: "Berkomunikasi" },
+  { q: "Apakah kamu pernah salah paham dengan teman karena komunikasi yang kurang jelas? Ceritakan cara kamu mengatasinya.", r: "Kesalahpahaman bisa diselesaikan dengan keberanian untuk berbicara baik-baik.", cat: "Berkomunikasi" },
+  { q: "Bagaimana caramu menyampaikan pendapat yang berbeda kepada teman tanpa menyinggung perasaannya?", r: "Menyampaikan pendapat dengan sopan adalah tanda kedewasaan dalam berkomunikasi.", cat: "Berkomunikasi" },
+  { q: "Bagaimana cara kamu mengendalikan emosi ketika menghadapi konflik dengan teman dekat?", r: "Mengelola emosi saat konflik membantu kita berpikir lebih jernih.", cat: "Kecerdasan Emosi" },
+  { q: "Apakah kamu pernah merasa marah ketika mengalami konflik tapi berhasil tetap tenang? Apa yang kamu lakukan?", r: "Tetap tenang saat marah adalah kemampuan yang bisa dilatih dan sangat berharga.", cat: "Kecerdasan Emosi" },
+  { q: "Bagaimana perasaanmu ketika melihat teman yang sedang sedih akibat konflik? Apa yang kamu lakukan?", r: "Peduli terhadap perasaan teman adalah bentuk empati yang nyata.", cat: "Kecerdasan Emosi" },
+  { q: "Apakah kamu pernah mengkhianati kepercayaan temanmu? Apa yang kamu rasakan dan lakukan setelahnya?", r: "Berani mengakui kesalahan adalah langkah pertama untuk memperbaiki kepercayaan.", cat: "Kepercayaan" },
+  { q: "Apa yang kamu lakukan agar teman-temanmu bisa mempercayaimu kembali setelah terjadi konflik?", r: "Kepercayaan dibangun kembali melalui tindakan nyata, bukan sekadar kata-kata.", cat: "Kepercayaan" },
+  { q: "Bagaimana cara kamu meminta maaf kepada teman setelah terjadi konflik?", r: "Meminta maaf dengan tulus menunjukkan keberanian dan rasa tanggung jawab.", cat: "Kepercayaan" },
+  { q: "Apakah ada rahasia teman yang pernah kamu jaga dengan baik?", r: "Menjaga rahasia teman adalah bentuk nyata dari kepercayaan.", cat: "Kepercayaan" },
+  { q: "Apakah kamu pernah berbeda pendapat dengan teman dekat? Bagaimana cara kamu mengatasinya?", r: "Perbedaan pendapat itu wajar – yang penting adalah cara kita menyikapinya.", cat: "Menghargai Perbedaan" },
+  { q: "Bagaimana sikapmu ketika teman memiliki kebiasaan yang sangat berbeda darimu?", r: "Menghargai perbedaan adalah kunci menjaga hubungan yang sehat.", cat: "Menghargai Perbedaan" },
+];
+
+const DARE = [
+  { q: "Coba praktikkan teknik mendengarkan aktif: minta satu pemain bercerita, lalu ulangi inti ceritanya.", r: "Merefleksikan cerita orang lain membuat mereka merasa didengar.", cat: "Berkomunikasi" },
+  { q: "Praktikkan kalimat 'Saya merasa...' bukan 'Kamu selalu...' kepada salah satu pemain.", r: "Berbicara dari sudut pandang diri sendiri lebih efektif dan tidak menyudutkan.", cat: "Berkomunikasi" },
+  { q: "Tunjukkan perbedaan bahasa tubuh 'menutup diri' dan 'siap mendengarkan'.", r: "Bahasa tubuh mempengaruhi cara orang merespons kita dalam komunikasi.", cat: "Berkomunikasi" },
+  { q: "Tunjukkan 3 ekspresi emosi berbeda lalu minta teman menebaknya.", r: "Mengenali ekspresi emosi membantu kita lebih peka terhadap perasaan orang lain.", cat: "Kecerdasan Emosi" },
+  { q: "Role play: tunjukkan cara menenangkan diri sebelum berbicara saat marah.", r: "Menenangkan diri sebelum berbicara mencegah konflik semakin besar.", cat: "Kecerdasan Emosi" },
+  { q: "Berjalan mundur dengan mata tertutup, biarkan temanmu mengarahkan.", r: "Mempercayai orang lain adalah dasar dari kerja sama yang baik.", cat: "Kepercayaan" },
+  { q: "Ungkapkan satu hal jujur yang ingin kamu sampaikan kepada teman (hal positif).", r: "Kejujuran yang positif memperkuat kepercayaan dan kedekatan.", cat: "Kepercayaan" },
+  { q: "Sebutkan 3 hal yang kamu kagumi dari teman yang paling berbeda karakternya.", r: "Menemukan kebaikan dalam perbedaan membuat kita lebih terbuka.", cat: "Menghargai Perbedaan" },
+  { q: "Buat satu kesepakatan kelompok untuk menjaga hubungan pertemanan tetap harmonis.", r: "Kesepakatan bersama memperkuat rasa saling menghormati.", cat: "Menghargai Perbedaan" },
+  { q: "Berikan pujian tulus kepada setiap pemain dalam 1 menit.", r: "Mengapresiasi orang lain mempererat hubungan dan membangun kepercayaan.", cat: "Menghargai Perbedaan" },
+];
+
+// ===== STATE =====
+let players = [];
+let scores = {};
+let round = 1;
+let totalRounds = 3;
+let currentPlayer = '';
+let usedTruth = [];
+let usedDare = [];
+let spinning = false;
+
+// ===== WHEEL =====
+const WHEEL_COLORS = [
+  '#FF69B4','#C879D4','#FF8DC7','#9C27B0',
+  '#FFB6C1','#BA68C8','#F48FB1','#7B1FA2',
+  '#FFAAD4','#AB47BC','#FF80AB','#8E24AA',
+];
+
+function drawWheel() {
+  const canvas = document.getElementById('wheelCanvas');
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width/2, cy = canvas.height/2, r = cx-4;
+  const n = players.length;
+  const slice = (2*Math.PI)/n;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  players.forEach((p,i) => {
+    const start = i*slice - Math.PI/2;
+    const end = start + slice;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,start,end);
+    ctx.closePath();
+    ctx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
+    ctx.fill();
+    ctx.strokeStyle='white'; ctx.lineWidth=2; ctx.stroke();
+    // label
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(start + slice/2);
+    ctx.textAlign='right';
+    ctx.fillStyle='white';
+    ctx.font = `bold ${Math.max(11,Math.min(15,100/n))}px Segoe UI`;
+    ctx.fillText(p, r-12, 4);
+    ctx.restore();
+  });
+  // center dot
+  ctx.beginPath();
+  ctx.arc(cx,cy,18,0,2*Math.PI);
+  ctx.fillStyle='white';
+  ctx.fill();
+  ctx.fillStyle='#E91E8C';
+  ctx.beginPath();
+  ctx.arc(cx,cy,10,0,2*Math.PI);
+  ctx.fill();
+}
+
+let wheelAngle = 0;
+function spinWheel() {
+  if(spinning) return;
+  spinning = true;
+  document.getElementById('spinBtn').disabled = true;
+  const extra = Math.random()*360 + 1440;
+  const duration = 3000;
+  const start = performance.now();
+  const startAngle = wheelAngle;
+
+  function animate(now) {
+    const t = Math.min((now-start)/duration,1);
+    const ease = 1 - Math.pow(1-t, 4);
+    wheelAngle = startAngle + extra*ease;
+    drawWheelRotated(wheelAngle);
+    if(t<1) { requestAnimationFrame(animate); return; }
+    // determine winner
+    const norm = ((wheelAngle % 360) + 360) % 360;
+    const slice = 360/players.length;
+    // pointer at top = 270deg from 0
+    const idx = Math.floor(((270-norm+360) % 360)/slice) % players.length;
+    currentPlayer = players[idx];
+    spinning = false;
+    document.getElementById('spinBtn').disabled = false;
+    setTimeout(goToChoice, 500);
+  }
+  requestAnimationFrame(animate);
+}
+
+function drawWheelRotated(angle) {
+  const canvas = document.getElementById('wheelCanvas');
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width/2, cy = canvas.height/2, r = cx-4;
+  const n = players.length;
+  const slice = (2*Math.PI)/n;
+  const rad = angle * Math.PI/180;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  players.forEach((p,i) => {
+    const start = i*slice - Math.PI/2 + rad;
+    const end = start + slice;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,start,end);
+    ctx.closePath();
+    ctx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
+    ctx.fill();
+    ctx.strokeStyle='white'; ctx.lineWidth=2; ctx.stroke();
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(start+slice/2);
+    ctx.textAlign='right'; ctx.fillStyle='white';
+    ctx.font=`bold ${Math.max(11,Math.min(15,100/n))}px Segoe UI`;
+    ctx.fillText(p, r-12, 4);
+    ctx.restore();
+  });
+  ctx.beginPath(); ctx.arc(cx,cy,18,0,2*Math.PI); ctx.fillStyle='white'; ctx.fill();
+  ctx.fillStyle='#E91E8C'; ctx.beginPath(); ctx.arc(cx,cy,10,0,2*Math.PI); ctx.fill();
+}
+
+// ===== FLOW =====
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function addPlayer() {
+  const inp = document.getElementById('playerInput');
+  const name = inp.value.trim();
+  if(!name) return;
+  if(players.includes(name)) { inp.value=''; return; }
+  players.push(name);
+  scores[name] = 0;
+  renderTags();
+  inp.value=''; inp.focus();
+}
+
+function renderTags() {
+  const wrap = document.getElementById('playerTags');
+  wrap.innerHTML = players.map((p,i)=>`
+    <div class="tag">👤 ${p}
+      <button onclick="removePlayer(${i})">×</button>
+    </div>`).join('');
+}
+
+function removePlayer(i) {
+  delete scores[players[i]];
+  players.splice(i,1);
+  renderTags();
+}
+
+function startGame() {
+  if(players.length < 2) { alert('Minimal 2 pemain ya!'); return; }
+  round=1; usedTruth=[]; usedDare=[];
+  players.forEach(p=>scores[p]=0);
+  updateRondeBadge();
+  drawWheel();
+  resetSpinBtn();
+  showPage('page-spin');
+}
+
+function updateRondeBadge() {
+  document.getElementById('rondeLabel').textContent = `Ronde ${round}`;
+}
+
+function resetSpinBtn() {
+  const btn = document.getElementById('spinBtn');
+  btn.textContent = 'Putar';
+  btn.onclick = spinWheel;
+}
+
+function goToChoice() {
+  document.getElementById('choicePlayerName').textContent = currentPlayer;
+  showPage('page-choice');
+}
+
+function showQuestion(type) {
+  const pool = type==='truth' ? TRUTH : DARE;
+  const used = type==='truth' ? usedTruth : usedDare;
+  const available = pool.map((_,i)=>i).filter(i=>!used.includes(i));
+  if(available.length===0) {
+    if(type==='truth') usedTruth=[];
+    else usedDare=[];
+    available.push(...pool.map((_,i)=>i));
+  }
+  const idx = available[Math.floor(Math.random()*available.length)];
+  if(type==='truth') usedTruth.push(idx);
+  else usedDare.push(idx);
+  const item = pool[idx];
+
+  document.getElementById('qPlayerName').textContent = currentPlayer;
+  document.getElementById('qText').textContent = item.q;
+  document.getElementById('qRefleksi').textContent = item.r;
+
+  const badge = document.getElementById('qBadge');
+  if(type==='truth') {
+    badge.textContent='💬 TRUTH';
+    badge.className='q-type-badge badge-truth';
+  } else {
+    badge.textContent='🔥 DARE';
+    badge.className='q-type-badge badge-dare';
+  }
+  showPage('page-question');
+}
+
+function doneQuestion() {
+  scores[currentPlayer] = (scores[currentPlayer]||0) + 10;
+  nextTurn();
+}
+
+function skipQuestion() { nextTurn(); }
+
+function nextTurn() {
+  // Check if all players have had a turn this round → increment round
+  round++;
+  if(round > totalRounds * players.length) {
+    showEnd();
+    return;
+  }
+  if(round > totalRounds) {
+    showEnd();
+    return;
+  }
+  updateRondeBadge();
+  drawWheel();
+  resetSpinBtn();
+  showPage('page-spin');
+}
+
+function showEnd() {
+  const sorted = [...players].sort((a,b)=>scores[b]-scores[a]);
+  const winner = sorted[0];
+  document.getElementById('winnerText').textContent = `${winner} pemenangnya`;
+  const medals = ['🥇','🥈','🥉'];
+  const classes = ['score-1st','score-2nd','score-3rd'];
+  document.getElementById('leaderboard').innerHTML = sorted.map((p,i)=>`
+    <div class="score-item ${classes[i]||'score-other'}">
+      <span class="medal">${medals[i]||'🏅'}</span>
+      <span class="score-name">${p}</span>
+      <span class="score-pts">${scores[p]} poin</span>
+    </div>`).join('');
+  showPage('page-end');
+}
+
+function playAgain() {
+  round=1; usedTruth=[]; usedDare=[];
+  players.forEach(p=>scores[p]=0);
+  updateRondeBadge();
+  drawWheel();
+  resetSpinBtn();
+  showPage('page-spin');
+}
+
+// init
+document.getElementById('playerInput').addEventListener('keydown', e => {
+  if(e.key==='Enter') addPlayer();
+});
+</script>
+</body>
+</html>
